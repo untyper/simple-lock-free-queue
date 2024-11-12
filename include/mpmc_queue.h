@@ -3,7 +3,7 @@
 // License: MIT (See the LICENSE file in the root directory)
 // Github: https://github.com/untyper/simple-lock-free-queue
 
-// Lock-free Multi-Producer Multi-Consumer queue
+// Lock-free (Multi-Producer, Multi-Consumer) queue
 
 template <typename T>
 class MPMC_Queue
