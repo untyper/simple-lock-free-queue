@@ -1,8 +1,113 @@
-# **Analysis of Message_Queue Implementations**
+# API
+```c++
+// #include "mpsc_queue.h"
+template <typename T> class MPSC_Queue // Example use: MPSC_Queue<int> queue;
+```
+```c++
+// #include "mpmc_queue.h"
+template <typename T> class MPMC_Queue // Example use: MPMC_Queue<int> queue;
+```
+```c++
+template <typename U> void enqueue(U&& value) // Accepts any type by templates
+```
+```c++
+std::unique_ptr<T> dequeue() // Returns nullptr if queue is empty, otherwise a pointer to the actual item
+```
+```c++
+bool is_empty()
+```
+```c++
+int size_approx() // The size will change during access in high concurrency apps, so an accurate size is not guaranteed
+```
 
-## **1. MPSC (Multi-Producer, Single-Consumer) Queue**
+# Example
+```c++
+#include "mpsc_queue.h"
+#include "mpmc_queue.h"
 
-### 1. **Structure and Functionality Analysis**
+// Example
+int main()
+{
+  // MPSC_Queue Usage Example
+  MPSC_Queue<int> mpsc_queue;
+
+  // Enqueue multiple items
+  mpsc_queue.enqueue(1);
+  mpsc_queue.enqueue(2);
+  mpsc_queue.enqueue(3);
+
+  // Check approximate size
+  std::cout << "MPSC Queue Approximate Size: " << mpsc_queue.size_approx() << std::endl;
+
+  // Dequeue items
+  while (!mpsc_queue.is_empty())
+  {
+    auto item = mpsc_queue.dequeue();
+    
+    if (item)
+    {
+      std::cout << "MPSC Queue Dequeued: " << *item << std::endl;
+    }
+  }
+
+  // MPMC_Queue Usage Example
+  MPMC_Queue<int> mpmc_queue;
+
+  // Enqueue items concurrently
+  std::thread producer1([&]() {mpmc_queue.enqueue(1);});
+  std::thread producer2([&]() {mpmc_queue.enqueue(2);});
+  std::thread producer3([&]() {mpmc_queue.enqueue(3);});
+
+  producer1.join();
+  producer2.join();
+  producer3.join();
+
+  // Check approximate size
+  std::cout << "MPMC Queue Approximate Size: " << mpmc_queue.size_approx() << std::endl;
+
+  // Dequeue items concurrently
+  std::thread consumer1([&]()
+  {
+    auto item = mpmc_queue.dequeue();
+    
+    if (item)
+    {
+      std::cout << "MPMC Queue Dequeued by Consumer 1: " << *item << std::endl;
+    }
+  });
+
+  std::thread consumer2([&]()
+  {
+    auto item = mpmc_queue.dequeue();
+    
+    if (item)
+    {
+      std::cout << "MPMC Queue Dequeued by Consumer 2: " << *item << std::endl;
+    }
+  });
+
+  std::thread consumer3([&]()
+  {
+    auto item = mpmc_queue.dequeue();
+    
+    if (item)
+    {
+      std::cout << "MPMC Queue Dequeued by Consumer 3: " << *item << std::endl;
+    }
+  });
+
+  consumer1.join();
+  consumer2.join();
+  consumer3.join();
+
+  return 0;
+}
+```
+
+# Info
+## **1. MPSC_Queue (Multi-Producer, Single-Consumer)**
+
+### 1. **Structure and Functionality**
 
 - **Nodes (`Node` Struct)**:
     - Each `Node` contains a `std::unique_ptr<T>` for data storage and an `std::atomic<Node*> next` pointer to link to the next node.
@@ -77,7 +182,7 @@ Given the characteristics of this queue, it would be suitable for:
 
 ---
 
-## **2. MPMC (Multi-Producer, Multi-Consumer) Queue**
+## **2. MPMC_Queue (Multi-Producer, Multi-Consumer)**
 
 ### 1. **Structure and Functionality Analysis**
 
@@ -147,3 +252,6 @@ Given its characteristics, this queue would be suitable for:
 - **Approximate `size_approx` Method**:
     - This method approximates the queue size by counting nodes from `head` to `tail`.
     - It’s not fully thread-safe, as concurrent modifications could alter the structure of the queue during counting, leading to an approximate value rather than an exact count.
+
+# Licence
+- MIT
