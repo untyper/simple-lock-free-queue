@@ -5,6 +5,9 @@
 
 // Lock-free (Multi-Producer, Multi-Consumer) queue
 
+#ifndef MPMC_QUEUE
+#define MPMC_QUEUE
+
 template <typename T>
 class MPMC_Queue
 {
@@ -149,3 +152,5 @@ public:
     this->clean_nodes();
   }
 };
+
+#endif // MPMC_QUEUE
