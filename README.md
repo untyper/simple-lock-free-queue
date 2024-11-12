@@ -11,13 +11,13 @@ template <typename T> class MPMC_Queue // Example use: MPMC_Queue<int> queue;
 template <typename U> void enqueue(U&& value) // Accepts any type by templates
 ```
 ```c++
-std::unique_ptr<T> dequeue() // Returns nullptr if queue is empty, otherwise a pointer to the actual item
+std::unique_ptr<T> dequeue() // Returns nullptr if queue is empty
 ```
 ```c++
 bool is_empty()
 ```
 ```c++
-int size_approx() // The size will change during access in high concurrency apps, so an accurate size is not guaranteed
+int size_approx() // Accurate size is not guaranteed
 ```
 
 # Example
